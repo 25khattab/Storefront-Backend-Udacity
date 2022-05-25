@@ -1,0 +1,42 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "export ENV=test && db-migrate -e test down &&db-migrate -e test up && npm run build && npm run jasmine && db-migrate -e test down",
+    "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "build": "npx tsc",
+    "jasmine": "jasmine",
+    "start": "nodemon src/index.ts",
+    "lint": "eslint 'src/**/*.ts'"
+  },
+  "author": "omar",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/jasmine": "^4.0.3",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^17.0.33",
+    "@types/pg": "^8.6.5",
+    "@types/supertest": "^2.0.12",
+    "@typescript-eslint/eslint-plugin": "^5.24.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jasmine": "^4.1.0",
+    "jasmine-spec-reporter": "^7.0.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.16",
+    "prettier": "2.6.2",
+    "supertest": "^6.2.3",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "db-migrate": "^0.11.13",
+    "db-migrate-pg": "^1.2.2",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "pg": "^8.7.3"
+  }
+}
