@@ -3,5 +3,5 @@ CREATE TABLE users(
     firstName VARCHAR(100) NOT NULL,
     lastNAME VARCHAR(100)NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR NOT NULL
+    password TEXT NOT NULL
 );

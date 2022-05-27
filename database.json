@@ -1,22 +1,44 @@
 {
     "dev": {
         "driver": "pg",
-        "host": "127.0.0.1",
-        "database": "store",
-        "user": "omar",
-        "password": "root"
+        "host": {
+            "ENV": "POSTGRES_HOST"
+        },
+        "database": {
+            "ENV": "POSTGRES_DB"
+        },
+        "user": {
+            "ENV": "POSTGRES_USER"
+        },
+        "password": {
+            "ENV": "POSTGRES_PASSWORD"
+        }
     },
     "test": {
         "driver": "pg",
-        "host": "127.0.0.1",
-        "database": "store_test",
-        "user": "omar",
-        "password": "root"
+        "host": {
+            "ENV": "POSTGRES_HOST"
+        },
+        "database": {
+            "ENV": "POSTGRES_TEST_DB"
+        },
+        "user": {
+            "ENV": "POSTGRES_USER"
+        },
+        "password": {
+            "ENV": "POSTGRES_PASSWORD"
+        }
     },
     "create": {
         "driver": "pg",
-        "host": "127.0.0.1",
-        "user": "omar",
-        "password": "root"
+        "host": {
+            "ENV": "POSTGRES_HOST"
+        },
+        "user": {
+            "ENV": "POSTGRES_USER"
+        },
+        "password": {
+            "ENV": "POSTGRES_PASSWORD"
+        }
     }
 }

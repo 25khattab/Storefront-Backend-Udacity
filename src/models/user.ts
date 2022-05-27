@@ -23,39 +23,46 @@ export class UserStore {
             throw new Error(`unable to get users ${err}`);
         }
     }
-    async show(id: number): Promise<User> {
+    async show(id: number): Promise<User|null> {
         try {
             const conn = await client.connect();
             const sql = 'SELECT * FROM users where id=($1)';
             const result = await conn.query(sql, [id]);
             conn.release();
-            return result.rows[0];
+            if(result.rows.length)
+                return result.rows[0];
+            return null;
         } catch (err) {
             throw new Error(`unable to get user with id=${id} ,${err}`);
         }
     }
-    async create(u: User): Promise<User> {
+    async create(u: User): Promise<User|null> {
         try {
             const conn = await client.connect();
             const sql =
                 'INSERT INTO users (firstName,lastName,email,password) values ($1,$2,$3,$4) RETURNING *';
-            const hash = bcrypt.hashSync(
-                u.password + pepper,
-                parseInt(saltRounds)
-            );
-            const result = await conn.query(sql, [
-                u.firstName,
-                u.lastName,
-                u.email,
-                hash,
-            ]);
+            const hash = bcrypt.hashSync(u.password + pepper, parseInt(saltRounds));
+            const result = await conn.query(sql, [u.firstName, u.lastName, u.email, hash]);
             conn.release();
             return result.rows[0];
         } catch (err) {
-            throw new Error(`unable to create new user ${err}`);
+            return null;
+            throw new Error(`unable to create new user\nemail already exists`);
         }
     }
-    async update(user: User) {}
+    async update(u: User): Promise<User> {
+        try {
+            const conn = await client.connect();
+            const sql =
+                'UPDATE users SET firstName=($1),lastName=($2),email=($3),password=($4) where id=($5) RETURNING *';
+            const hash = bcrypt.hashSync(u.password + pepper, parseInt(saltRounds));
+            const result = await conn.query(sql, [u.firstName, u.lastName, u.email, hash, u.id]);
+            conn.release();
+            return result.rows[0];
+        } catch (error) {
+            throw new Error(`unable to edit user ${error}`);
+        }
+    }
     async authenticate(email: string, password: string): Promise<User | null> {
         try {
             const conn = await client.connect();
@@ -63,9 +70,6 @@ export class UserStore {
             const result = await conn.query(sql, [email]);
             if (result.rows.length) {
                 const user: User = result.rows[0];
-
-                console.log(user);
-
                 if (bcrypt.compareSync(password + pepper, user.password)) {
                     return user;
                 }

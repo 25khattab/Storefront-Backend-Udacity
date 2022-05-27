@@ -1,7 +1,11 @@
-import express, { Response, Request, NextFunction } from 'express';
+import express, { Response, Request } from 'express';
 import { User, UserStore } from '../models/user';
 import jwt from 'jsonwebtoken';
+import verifyAuthToken from '../middlewares/auth';
+import verifyAuthorizToken from '../middlewares/authorization';
+
 const store = new UserStore();
+
 const index = async (_req: Request, res: Response) => {
     const users = await store.index();
     res.json(users);
@@ -37,27 +41,13 @@ const update = async (req: Request, res: Response) => {
         password: req.body.password,
     };
     try {
-        const authorizationHeader = req.headers.authorization as string;
-        const token = authorizationHeader.split(' ')[1];
-        const decoded = jwt.verify(
-            token,
-            process.env.TOKEN_SECRET as string
-        ) as User;
-        if (decoded.id !== user.id) {
-            throw new Error('User id does not match!');
-        }
-    } catch (err) {
-        res.status(401);
-        res.json(err);
-        return;
-    }
-
-    try {
         const updated = await store.update(user);
         res.json(updated);
     } catch (err) {
-        res.status(400);
-        res.json({ err, user });
+        if (err instanceof Error) {
+            res.status(400);
+            res.json({ Error: err.message });
+        }
     }
 };
 const authenticate = async (req: Request, res: Response) => {
@@ -71,30 +61,17 @@ const authenticate = async (req: Request, res: Response) => {
         );
         res.json(token);
     } catch (error) {
-        res.status(401);
-        res.json({ error });
+        if (error instanceof Error) {
+            res.status(401);
+            res.json({ error: error.message });
+        }
     }
 };
+const userRoutes = express.Router();
+userRoutes.get('/', index);
+userRoutes.get('/:id', show);
+userRoutes.post('/', create);
+userRoutes.put('/:id', verifyAuthToken, verifyAuthorizToken, update);
+userRoutes.post('/authenticate', authenticate);
 
-const verifyAuthToken = (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const authorizationHeader = req.headers.authorization as string;
-        if (authorizationHeader == undefined)
-            res.status(401).json({ error: 'not auth' });
-        const token = authorizationHeader.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.TOKEN_SECRET as string);
-        console.log(authorizationHeader);
-        next();
-    } catch (error) {
-        res.status(401);
-    }
-};
-
-const userRoutes = (app: express.Application) => {
-    app.get('/users', index);
-    app.get('/users/:id', show);
-    app.post('/users', create);
-    app.put('/users/:id', verifyAuthToken, update);
-    app.post('/users/authenticate', authenticate);
-};
 export default userRoutes;

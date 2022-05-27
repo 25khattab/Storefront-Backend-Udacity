@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
-        "build": "npx tsc",
+        "build": "rm -r build && npx tsc",
         "jasmine": "jasmine",
         "lint": "eslint 'src/**/*.ts'",
         "delete-db": "db-migrate -e create db:drop store",
@@ -13,8 +13,8 @@
         "start": "nodemon src/index.ts",
         "delete-test-db": "db-migrate -e create db:drop store_test",
         "init-test-db": "npm run delete-test-db &&db-migrate -e create db:create store_test && db-migrate -e test up ",
-        "test": "set ENV=test && npm run init-test-db && npm run build && npm run jasmine && npm run delete-test-db ",
-        "start-test": "set ENV=test && npm run init-test-db  && nodemon src/index.ts && npm run delete-test-db"
+        "test": "export ENV=test && npm run init-test-db && npm run build && npm run jasmine && npm run delete-test-db ",
+        "start-test": "export ENV=test && npm run init-test-db  && nodemon src/index.ts && npm run delete-test-db"
 
 
     },
