@@ -5,5 +5,5 @@ const routes = express.Router();
 routes.get('/', (_req: express.Request, res: express.Response): void => {
     res.send('main api route');
 });
-routes.use("/users",userRoutes);
+routes.use('/users', userRoutes);
 export default routes;

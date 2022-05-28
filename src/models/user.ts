@@ -1,5 +1,4 @@
 import client from '../database';
-import Logger from '../middlewares/logger';
 import bcrypt from 'bcrypt';
 const saltRounds = process.env.SALT_ROUNDS as string;
 const pepper = process.env.BCRYPT_PASSWORD as string;
@@ -10,7 +9,13 @@ export type User = {
     email: string;
     password: string;
 };
-
+export type serUser = {
+    id?: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password?: string;
+};
 export class UserStore {
     async findByEmail(email: string): Promise<User | null> {
         const conn = await client.connect();
@@ -23,47 +28,49 @@ export class UserStore {
         }
         return null;
     }
-    async index(): Promise<User[]|null> {
+    async index(): Promise<serUser[] | null> {
         try {
             const conn = await client.connect();
-            const sql = 'SELECT (id,firstName,lastName,email) FROM users';
+            const sql = 'SELECT * FROM users';
             const result = await conn.query(sql);
             conn.release();
-            return result.rows;
+            return result.rows as serUser[];
         } catch (err) {
-            Logger.log(`unable to get users`,err);
+            console.log(`unable to get users`, err);
         }
         return null;
     }
-    async show(id: number): Promise<User | null> {
+    async show(id: number): Promise<serUser | null> {
         try {
             const conn = await client.connect();
             const sql = 'SELECT * FROM users where id=($1)';
             const result = await conn.query(sql, [id]);
             conn.release();
-            if (result.rows.length) 
-                return result.rows[0];
+            if (result.rows.length) {
+                const user: serUser = result.rows[0];
+                user.password = undefined;
+                return user;
+            }
+            return null;
         } catch (err) {
-            Logger.log(`unable to get user with id = ${id}`,err);
+            console.log(`unable to get user with id = ${id}`, err);
         }
         return null;
     }
-    async create(u: User): Promise<User | null> {
+    async create(u: User): Promise<serUser | null> {
         try {
             const conn = await client.connect();
-            const checkSql = 'select * from users where email=($1)';
-            const check = await conn.query(checkSql, [u.email]);
-            if (check.rows.length) {
-                return null;
-            }
             const sql =
                 'INSERT INTO users (firstName,lastName,email,password) values ($1,$2,$3,$4) RETURNING *';
             const hash = bcrypt.hashSync(u.password + pepper, parseInt(saltRounds));
             const result = await conn.query(sql, [u.firstName, u.lastName, u.email, hash]);
             conn.release();
-            return result.rows[0];
+            const user: serUser = result.rows[0];
+            user.password = undefined;
+            return user;
         } catch (err) {
-            throw new Error(`unable to create user ${err}`);
+            console.log('error in user model');
         }
+        return null;
     }
 }

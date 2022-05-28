@@ -1,9 +1,9 @@
 import express, { Response, Request } from 'express';
-import { User, UserStore } from '../models/user';
+import { User, UserStore, serUser } from '../models/user';
 import jwt from 'jsonwebtoken';
-import verifyAuthToken from '../middlewares/auth';
+import verifyAuthToken from '../middlewares/checkLoginToken';
 import bcrypt from 'bcrypt';
-import Logger from '../middlewares/logger';
+import authorizationLevel from '../middlewares/authorizationLevel';
 const saltRounds = process.env.SALT_ROUNDS as string;
 const pepper = process.env.BCRYPT_PASSWORD as string;
 
@@ -13,12 +13,18 @@ const index = async (_req: Request, res: Response) => {
     try {
         const users = await store.index();
         res.send(users);
-    } catch (error) {}
+    } catch (error) {
+        console.log('error in users handler ', error);
+    }
 };
 
 const show = async (req: Request, res: Response) => {
-    const user = await store.show(parseInt(req.params.id));
-    res.json(user);
+    try {
+        const user = await store.show(parseInt(req.params.id));
+        res.json(user);
+    } catch (error) {
+        console.log('error in users handler ', error);
+    }
 };
 
 const create = async (req: Request, res: Response) => {
@@ -29,45 +35,47 @@ const create = async (req: Request, res: Response) => {
         password: req.body.password as string,
     };
     try {
+        const existed = await store.findByEmail(user.email);
+        if (existed != null) {
+            return res.status(400).send({ msg: 'user with this email exists' });
+        }
+
         const newUser = await store.create(user);
         if (newUser != null) {
             const token = jwt.sign(
                 { id: user?.id, firstName: user?.firstName },
                 process.env.TOKEN_SECRET as string
             );
-            res.header({Authorization: 'Bearer ' + token}).json({token:token});
+            newUser.password = undefined;
+            res.status(200)
+                .header({ Authorization: 'Bearer ' + token })
+                .json({ token: token, user: newUser });
         }
     } catch (err) {
-        if (err instanceof Error) {
-            res.status(400).json({ err: err.message });
-        }
+        console.log('error in users handler ', err);
     }
 };
 const authenticate = async (req: Request, res: Response) => {
     const email = req.body.email;
     const password = req.body.password;
     try {
-        const user = await store.findByEmail(email);
-        if(user == null){
-            res.status(401).send({ msg: 'email not found'});
-            return;
-          }
-          if (!bcrypt.compareSync(password + pepper, user.password)) {
-            res.status(401).send({ msg: 'wrong password'});
-            return;
+        const user = (await store.findByEmail(email)) as serUser;
+        if (user == null) {
+            return res.status(401).send({ msg: 'email not found' });
         }
-        const token = jwt.sign(
-            { id: user?.id, firstName: user?.firstName },
-            process.env.TOKEN_SECRET as string
-        );
-        res.header({Authorization: 'Bearer ' + token}).json({token:token});
+        if (!bcrypt.compareSync(password + pepper, user.password as string)) {
+            return res.status(401).send({ msg: 'wrong password' });
+        }
+        user.password = undefined;
+        const token = jwt.sign(user, process.env.TOKEN_SECRET as string);
+        res.header({ Authorization: 'Bearer ' + token }).json({ token: token });
     } catch (error) {
-        Logger.log(`user handler error`,error);
+        console.log(`user handler error`, error);
     }
 };
 const userRoutes = express.Router();
 userRoutes.get('/', index);
-userRoutes.get('/:id', verifyAuthToken, show);
+userRoutes.get('/:id', authorizationLevel, show);
 userRoutes.post('/', create);
 userRoutes.post('/authenticate', authenticate);
 
