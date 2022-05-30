@@ -36,7 +36,7 @@ export class UserStore {
             conn.release();
             return result.rows as serUser[];
         } catch (err) {
-            console.log(`unable to get users`, err);
+            console.log('error in user model', err);
         }
         return null;
     }
@@ -53,7 +53,7 @@ export class UserStore {
             }
             return null;
         } catch (err) {
-            console.log(`unable to get user with id = ${id}`, err);
+            console.log('error in user model', err);
         }
         return null;
     }
@@ -69,7 +69,7 @@ export class UserStore {
             user.password = undefined;
             return user;
         } catch (err) {
-            console.log('error in user model');
+            console.log('error in user model', err);
         }
         return null;
     }

@@ -1,8 +1,4 @@
 import client from '../database';
-import bcrypt from 'bcrypt';
-import { resourceLimits } from 'worker_threads';
-const saltRounds = process.env.SALT_ROUNDS as string;
-const pepper = process.env.BCRYPT_PASSWORD as string;
 
 export type Product = {
     id?: number;
@@ -18,8 +14,8 @@ export class productStore {
             const sql = 'SELECT * FROM products where name=($1)';
             const result = await conn.query(sql, [name]);
             conn.release();
-            if (result.rowCount) {
-                return null;
+            if (result.rows.length) {
+                return result.rows[0] as Product;
             }
         } catch (Error) {
             console.log('error in product model');

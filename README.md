@@ -1,54 +1,145 @@
-# Storefront Backend Project
+## Install Instructions
+To install devDependencies & dependencies
 
-## Getting Started
+    `npm i`
+ 
+ ## .env 
+    ```
+    POSTGRES_HOST=127.0.0.1
+    POSTGRES_DB=store
+    POSTGRES_TEST_DB=store_test
+    POSTGRES_USER=omar
+    POSTGRES_PASSWORD=root
+    ENV=dev
+    BCRYPT_PASSWORD=this_is_fun_123
+    SALT_ROUNDS=10
+    TOKEN_SECRET=apexIsHere
+    
+    ```
 
-This repo contains a basic Node and Express app to get you started in constructing an API. To get started, clone this repo and run `yarn` in your terminal at the project root.
+    change the username and password to you current settings
 
-## Required Technologies
-Your application must make use of the following libraries:
-- Postgres for the database
-- Node/Express for the application logic
-- dotenv from npm for managing environment variables
-- db-migrate from npm for migrations
-- jsonwebtoken from npm for working with JWTs
-- jasmine from npm for testing
+## Database and Migrations
+the Database used in the project was Postgres database
+### to install database packages by yourself 
+#### 
+    `npm i pg`
+#### 
+    `npm i db-migrate db-migrate-pg`
 
-## Steps to Completion
 
-### 1. Plan to Meet Requirements
+## Scripts of project
 
-In this repo there is a `REQUIREMENTS.md` document which outlines what this API needs to supply for the frontend, as well as the agreed upon data shapes to be passed between front and backend. This is much like a document you might come across in real life when building or extending an API. 
+    "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "build": "rm -r build && npx tsc",
+    "jasmine": "jasmine",
+    "lint": "eslint 'src/**/*.ts' --fix",
+    "delete-db": "db-migrate -e create db:drop store",
+    "init-db": "db-migrate -e create db:create store && db-migrate up ",
+    "start": "nodemon src/index.ts",
+    "delete-test-db": "db-migrate -e create db:drop store_test",
+    "init-test-db": "npm run delete-test-db &&db-migrate -e create db:create store_test && db-migrate -e test up ",
+    "test": "export ENV=test && npm run init-test-db && npm run build && npm run jasmine && npm run delete-test-db ",
+    "start-test": "export ENV=test && npm run init-test-db  && nodemon src/index.ts && npm run delete-test-db"
 
-Your first task is to read the requirements and update the document with the following:
-- Determine the RESTful route for each endpoint listed. Add the RESTful route and HTTP verb to the document so that the frontend developer can begin to build their fetch requests.    
-**Example**: A SHOW route: 'blogs/:id' [GET] 
+## Endpoints
+    http://localhost:3000
 
-- Design the Postgres database tables based off the data shape requirements. Add to the requirements document the database tables and columns being sure to mark foreign keys.   
-**Example**: You can format this however you like but these types of information should be provided
-Table: Books (id:varchar, title:varchar, author:varchar, published_year:varchar, publisher_id:string[foreign key to publishers table], pages:number)
+### Users Endpoints
+    Get  [/users]
+    Get  [/users/:id]
+    Post [/users]
+    Post [/user/authenticate]
 
-**NOTE** It is important to remember that there might not be a one to one ratio between data shapes and database tables. Data shapes only outline the structure of objects being passed between frontend and API, the database may need multiple tables to store a single shape. 
+### products Endpoints
+    Get  [/products]
+    Get  [/products/:id]
+    Post [/products]
 
-### 2.  DB Creation and Migrations
+### Orders Endpoints
+   
+    Get  [/orders]
+    Get  [/:id]
+    Post [/orders/:id/products]
 
-Now that you have the structure of the databse outlined, it is time to create the database and migrations. Add the npm packages dotenv and db-migrate that we used in the course and setup your Postgres database. If you get stuck, you can always revisit the database lesson for a reminder. 
 
-You must also ensure that any sensitive information is hashed with bcrypt. If any passwords are found in plain text in your application it will not pass.
+## Database config 
+    {
+    "dev": {
+        "driver": "pg",
+        "host": {
+            "ENV": "POSTGRES_HOST"
+        },
+        "database": {
+            "ENV": "POSTGRES_DB"
+        },
+        "user": {
+            "ENV": "POSTGRES_USER"
+        },
+        "password": {
+            "ENV": "POSTGRES_PASSWORD"
+        }
+    },
+    "test": {
+        "driver": "pg",
+        "host": {
+            "ENV": "POSTGRES_HOST"
+        },
+        "database": {
+            "ENV": "POSTGRES_TEST_DB"
+        },
+        "user": {
+            "ENV": "POSTGRES_USER"
+        },
+        "password": {
+            "ENV": "POSTGRES_PASSWORD"
+        }
+    },
+    "create": {
+        "driver": "pg",
+        "host": {
+            "ENV": "POSTGRES_HOST"
+        },
+        "user": {
+            "ENV": "POSTGRES_USER"
+        },
+        "password": {
+            "ENV": "POSTGRES_PASSWORD"
+        }
+    }
+}
 
-### 3. Models
+## Database schema 
+```
+TABLE users(
+    id SERIAL PRIMARY KEY,
+    firstName VARCHAR(100) NOT NULL,
+    lastNAME VARCHAR(100)NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password TEXT NOT NULL
+);
+```
+```  
+TABLE products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR NOT NULL,
+    price INTEGER NOT NULL,
+    category VARCHAR(100)
+);
+```
+```
+TABLE orders (
+    id SERIAL PRIMARY KEY,
+    status VARCHAR(30),
+    user_id integer REFERENCES users(id)
+);
+```
+```   
+TABLE order_products(
+    id SERIAL PRIMARY KEY,
+    quantity integer,
+    order_id integer REFERENCES orders(id),
+    product_id integer REFERENCES products(id)
+);
+```
 
-Create the models for each database table. The methods in each model should map to the endpoints in `REQUIREMENTS.md`. Remember that these models should all have test suites and mocks.
-
-### 4. Express Handlers
-
-Set up the Express handlers to route incoming requests to the correct model method. Make sure that the endpoints you create match up with the enpoints listed in `REQUIREMENTS.md`. Endpoints must have tests and be CORS enabled. 
-
-### 5. JWTs
-
-Add JWT functionality as shown in the course. Make sure that JWTs are required for the routes listed in `REQUIUREMENTS.md`.
-
-### 6. QA and `README.md`
-
-Before submitting, make sure that your project is complete with a `README.md`. Your `README.md` must include instructions for setting up and running your project including how you setup, run, and connect to your database. 
-
-Before submitting your project, spin it up and test each endpoint. If each one responds with data that matches the data shapes from the `REQUIREMENTS.md`, it is ready for submission!

@@ -7,7 +7,7 @@
         "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
         "build": "rm -r build && npx tsc",
         "jasmine": "jasmine",
-        "lint": "eslint 'src/**/*.ts'",
+        "lint": "eslint 'src/**/*.ts' --fix",
         "delete-db": "db-migrate -e create db:drop store",
         "init-db": "db-migrate -e create db:create store && db-migrate up ",
         "start": "nodemon src/index.ts",

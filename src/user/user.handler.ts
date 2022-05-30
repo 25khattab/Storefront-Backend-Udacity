@@ -1,9 +1,9 @@
 import express, { Response, Request } from 'express';
-import { User, UserStore, serUser } from '../models/user';
+import { User, UserStore, serUser } from './user.model';
 import jwt from 'jsonwebtoken';
-import verifyAuthToken from '../middlewares/checkLoginToken';
 import bcrypt from 'bcrypt';
 import authorizationLevel from '../middlewares/authorizationLevel';
+import checkLoginToken from '../middlewares/checkLoginToken';
 const saltRounds = process.env.SALT_ROUNDS as string;
 const pepper = process.env.BCRYPT_PASSWORD as string;
 
@@ -37,7 +37,7 @@ const create = async (req: Request, res: Response) => {
     try {
         const existed = await store.findByEmail(user.email);
         if (existed != null) {
-            return res.status(400).send({ msg: 'user with this email exists' });
+            return res.status(400).send({ errMsg: 'user with this email exists' });
         }
 
         const newUser = await store.create(user);
@@ -47,9 +47,7 @@ const create = async (req: Request, res: Response) => {
                 process.env.TOKEN_SECRET as string
             );
             newUser.password = undefined;
-            res.status(200)
-                .header({ Authorization: 'Bearer ' + token })
-                .json({ token: token, user: newUser });
+            res.status(200).json({ token: token, user: newUser });
         }
     } catch (err) {
         console.log('error in users handler ', err);
@@ -61,10 +59,10 @@ const authenticate = async (req: Request, res: Response) => {
     try {
         const user = (await store.findByEmail(email)) as serUser;
         if (user == null) {
-            return res.status(401).send({ msg: 'email not found' });
+            return res.status(401).send({ errMsg: 'email not found' });
         }
         if (!bcrypt.compareSync(password + pepper, user.password as string)) {
-            return res.status(401).send({ msg: 'wrong password' });
+            return res.status(401).send({ errMsg: 'wrong password' });
         }
         user.password = undefined;
         const token = jwt.sign(user, process.env.TOKEN_SECRET as string);
@@ -76,7 +74,7 @@ const authenticate = async (req: Request, res: Response) => {
 const userRoutes = express.Router();
 userRoutes.get('/', index);
 userRoutes.get('/:id', authorizationLevel, show);
-userRoutes.post('/', create);
+userRoutes.post('/', checkLoginToken, create);
 userRoutes.post('/authenticate', authenticate);
 
 export default userRoutes;

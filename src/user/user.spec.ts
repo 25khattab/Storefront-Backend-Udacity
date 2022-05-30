@@ -1,9 +1,8 @@
-import { notEqual } from 'assert';
 import app from '../app';
-import { User, UserStore } from '../models/user';
+import { User, UserStore } from './user.model';
 import request from 'supertest';
 import { truncDB } from '../utils/truncateDB';
-
+import { createTestUser, loginTestUser } from '../utils/adminTestUser';
 const req = request(app);
 const store = new UserStore();
 const testUser: User = {
@@ -13,6 +12,9 @@ const testUser: User = {
     password: 'root',
 };
 describe('User Test', () => {
+    beforeAll(async () => {
+        await truncDB();
+    });
     describe('Testing the model functions', () => {
         beforeAll(async () => {
             await truncDB();
@@ -34,43 +36,49 @@ describe('User Test', () => {
             if (result != null) expect(result.email).toEqual(testUser.email);
             if (result != null) expect(result.password).toEqual(undefined);
         });
-        afterAll(async () => {
-            await truncDB();
-        });
     });
 
-    describe('Testing the model endpoints', () => {
+    describe('Testing the endpoints', () => {
+        beforeAll(async () => {
+            await truncDB();
+        });
         it('Testing index (get /users)', async (): Promise<void> => {
             const result = await req.get('/users');
             expect(result.status).toBe(200);
         });
         it('Testing create (post /users)', async (): Promise<void> => {
-            const result = await req.post('/users').send(testUser);
+            await createTestUser();
+            const token: string = await loginTestUser();
+            const result = await req
+                .post('/users')
+                .send(testUser)
+                .set({ Authorization: 'Bearer ' + token });
             expect(result.body.user.email).toEqual(testUser.email);
             expect(result.body.user.password).toEqual(undefined);
             expect(result.statusCode).toBe(200);
         });
         it('Testing create (post /users) for duplicated data', async (): Promise<void> => {
-            const result = await req.post('/users').send(testUser);
+            const token: string = await loginTestUser();
+            const result = await req
+                .post('/users')
+                .send(testUser)
+                .send(testUser)
+                .set({ Authorization: 'Bearer ' + token });
             expect(result.statusCode).toBe(400);
         });
         it('Testing show (get /users/1)', async () => {
             const token = await req.post('/users/authenticate').send(testUser);
             const result = await req
-                .get('/users/1')
+                .get('/users/2')
                 .set({ Authorization: 'Bearer ' + token.body.token });
             if (result != null) expect(result.body.email).toEqual(testUser.email);
         });
         it('Testing show  (get /users/2) for unauthorized user', async (): Promise<void> => {
             const token = await req.post('/users/authenticate').send(testUser);
             const result = await req
-                .get('/users/2')
+                .get('/users/3')
                 .set({ Authorization: 'Bearer ' + token.body.token });
-            expect(result.body.Error).toEqual('User id does not match!');
+            expect(result.body.errMsg).toEqual('User id does not match!');
         });
-    });
-
-    afterAll(async () => {
-        await truncDB();
     });
 });
