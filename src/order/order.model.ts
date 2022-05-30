@@ -72,7 +72,7 @@ export class orderStore {
                 FROM order_products
                 JOIN products ON order_products.product_id = products.id 
                 AND order_products.order_id=($1);`;
-                const res = (await conn.query(sql, [orders[i].id])).rows[0] as  orderProduct2;
+                const res = (await conn.query(sql, [orders[i].id])).rows[0] as orderProduct2;
                 result.push(res);
                 conn.release();
             }

@@ -19,8 +19,8 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
             user_id: +req.params.id,
         };
         const newOrder = await store.create(order);
-        res.locals.order_id=newOrder?.id;
-        res.locals.product= req.body ;
+        res.locals.order_id = newOrder?.id;
+        res.locals.product = req.body;
         next();
     } catch (error) {
         res.status(401).json({ errMsg: 'error in create order handler' });
@@ -30,7 +30,7 @@ const ordersByUser = async (req: Request, res: Response) => {
     try {
         const id = parseInt(req.params.id);
         const orders = await store.findOrdersByuser(id);
-        
+
         if (orders != null) {
             const result = await store.findProducts(orders);
             res.send(result);
