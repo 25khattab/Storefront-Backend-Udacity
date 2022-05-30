@@ -1,10 +1,10 @@
 ## Install Instructions
 To install devDependencies & dependencies
 
-    `npm i`
+    npm i
  
  ## .env 
-    ```
+    
     POSTGRES_HOST=127.0.0.1
     POSTGRES_DB=store
     POSTGRES_TEST_DB=store_test
@@ -14,10 +14,8 @@ To install devDependencies & dependencies
     BCRYPT_PASSWORD=this_is_fun_123
     SALT_ROUNDS=10
     TOKEN_SECRET=apexIsHere
-    
-    ```
 
-    change the username and password to you current settings
+change the username and password to you current settings
 
 ## Database and Migrations
 the Database used in the project was Postgres database
