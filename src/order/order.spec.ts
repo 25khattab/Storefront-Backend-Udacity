@@ -2,7 +2,7 @@ import app from '../app';
 import request from 'supertest';
 import { truncDB } from '../utils/truncateDB';
 import { createTestUser, loginTestUser } from '../utils/adminTestUser';
-import { Order, orderProduct, orderStore } from './order.model';
+import { Order, orderStore } from './order.model';
 import { Product } from '../product/product.model';
 const req = request(app);
 const store = new orderStore();
@@ -21,8 +21,6 @@ describe('Order Test', () => {
             await truncDB();
         });
         it('Test create function', async (): Promise<void> => {
-            await createTestUser();
-            const token: string = await loginTestUser();
             const result = (await store.create(testOrder)) as Order;
             if (result != null) {
                 expect(result.status).toEqual(testOrder.status);

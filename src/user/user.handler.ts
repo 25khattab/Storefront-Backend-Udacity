@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import authorizationLevel from '../middlewares/authorizationLevel';
 import checkLoginToken from '../middlewares/checkLoginToken';
-const saltRounds = process.env.SALT_ROUNDS as string;
 const pepper = process.env.BCRYPT_PASSWORD as string;
 
 const store = new UserStore();
