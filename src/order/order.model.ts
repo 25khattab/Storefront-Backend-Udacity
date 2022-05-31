@@ -27,7 +27,7 @@ export class orderStore {
             conn.release();
             return result.rows;
         } catch (error) {
-            console.log('error in order model', error);
+            console.log('error in index order model', error);
         }
         return null;
     }
@@ -45,7 +45,7 @@ export class orderStore {
 
             return order;
         } catch (error) {
-            console.log('error in order model', error);
+            console.log('error in create order model', error);
         }
         return null;
     }
@@ -58,7 +58,7 @@ export class orderStore {
             conn.release();
             return result.rows;
         } catch (error) {
-            console.log('error in order model', error);
+            console.log('error in findOrdersByuser order model', error);
         }
         return null;
     }
@@ -95,7 +95,7 @@ export class orderStore {
 
             return order;
         } catch (err) {
-            console.log('error in order model', err);
+            console.log('error in add product order model', err);
         }
         return null;
     }

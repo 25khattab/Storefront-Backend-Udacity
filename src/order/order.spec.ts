@@ -21,6 +21,7 @@ describe('Order Test', () => {
             await truncDB();
         });
         it('Test create function', async (): Promise<void> => {
+            await createTestUser();
             const result = (await store.create(testOrder)) as Order;
             if (result != null) {
                 expect(result.status).toEqual(testOrder.status);

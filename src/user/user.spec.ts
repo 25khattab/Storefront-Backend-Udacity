@@ -48,11 +48,9 @@ describe('User Test', () => {
         });
         it('Testing create (post /users)', async (): Promise<void> => {
             await createTestUser();
-            const token: string = await loginTestUser();
             const result = await req
                 .post('/users')
-                .send(testUser)
-                .set({ Authorization: 'Bearer ' + token });
+                .send(testUser);
             expect(result.body.user.email).toEqual(testUser.email);
             expect(result.body.user.password).toEqual(undefined);
             expect(result.statusCode).toBe(200);
@@ -62,11 +60,10 @@ describe('User Test', () => {
             const result = await req
                 .post('/users')
                 .send(testUser)
-                .send(testUser)
                 .set({ Authorization: 'Bearer ' + token });
             expect(result.statusCode).toBe(400);
         });
-        it('Testing show (get /users/1)', async () => {
+        it('Testing show (get /users/2)', async () => {
             const token = await req.post('/users/authenticate').send(testUser);
             const result = await req
                 .get('/users/2')
@@ -74,10 +71,10 @@ describe('User Test', () => {
             if (result != null) expect(result.body.email).toEqual(testUser.email);
         });
         it('Testing show  (get /users/2) for unauthorized user', async (): Promise<void> => {
-            const token = await req.post('/users/authenticate').send(testUser);
+            const token = await loginTestUser();
             const result = await req
-                .get('/users/3')
-                .set({ Authorization: 'Bearer ' + token.body.token });
+                .get('/users/2')
+                .set({ Authorization: 'Bearer ' + token });
             expect(result.body.errMsg).toEqual('User id does not match!');
         });
     });
