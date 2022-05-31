@@ -44,8 +44,8 @@ const create = async (req: Request, res: Response) => {
 };
 
 const productRoutes = express.Router();
-productRoutes.get('/', checkLoginToken, index);
-productRoutes.get('/:id', checkLoginToken, show);
+productRoutes.get('/', index);
+productRoutes.get('/:id', show);
 productRoutes.post('/', checkLoginToken, create);
 
 export default productRoutes;
