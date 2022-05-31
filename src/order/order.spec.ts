@@ -42,11 +42,12 @@ describe('Order Test', () => {
             await truncDB();
         });
         it('Testing index (get /orders)', async (): Promise<void> => {
-            const result = await req.get('/orders');
+            await createTestUser();
+            const token: string = await loginTestUser();
+            const result = await req.get('/orders').set({ Authorization: 'Bearer ' + token });
             expect(result.status).toBe(200);
         });
         it('Testing create (post /orders/1/product)', async (): Promise<void> => {
-            await createTestUser();
             const token: string = await loginTestUser();
             await req
                 .post('/products')
@@ -59,7 +60,8 @@ describe('Order Test', () => {
             expect(result.body.quantity).toEqual(2);
         });
         it('Testing ordersByUser (get /orders/1)', async () => {
-            const result = await req.get('/orders/1');
+            const token: string = await loginTestUser();
+            const result = await req.get('/orders/1').set({ Authorization: 'Bearer ' + token });
             expect(result.body[0].name).toEqual(testProduct.name);
         });
         // it('Testing create (post /Products) for duplicated data', async (): Promise<void> => {

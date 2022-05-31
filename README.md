@@ -15,16 +15,41 @@ To install devDependencies & dependencies
     SALT_ROUNDS=10
     TOKEN_SECRET=apexIsHere
 
-change the username and password to you current settings
-
 ## Database and Migrations
 the Database used in the project was Postgres database
 ### to install database packages by yourself 
-#### 
-    `npm i pg`
-#### 
-    `npm i db-migrate db-migrate-pg`
 
+```
+ npm i pg
+```
+
+```
+npm i db-migrate db-migrate-pg
+
+```
+### run this command to login to default postgres user 
+
+```
+psql -U postgres
+```
+or
+
+```
+psql postgres
+```
+### then create your postgres username
+
+```
+create Role yourUsername with password 'yourPassword' SUPERUSER LOGIN CREATEDB;
+
+```
+### Default Port
+Default port is 5432.
+
+
+now your database is ready 
+
+Remember to change the .env file to your own settings
 
 ## Scripts of project
 

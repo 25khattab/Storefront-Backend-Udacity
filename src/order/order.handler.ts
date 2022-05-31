@@ -1,6 +1,7 @@
 import express, { Response, Request, NextFunction } from 'express';
 import { orderProduct, Order, orderStore } from './order.model';
 import authorizationLevel from '../middlewares/authorizationLevel';
+import checkLoginToken from '../middlewares/checkLoginToken';
 
 const store = new orderStore();
 const index = async (_req: Request, res: Response) => {
@@ -57,8 +58,8 @@ const addProduct = async (req: Request, res: Response) => {
     }
 };
 const orderRoutes = express.Router();
-orderRoutes.get('/', index);
-orderRoutes.get('/:id', ordersByUser);
-orderRoutes.post('/:id/product', authorizationLevel, create, addProduct);
+orderRoutes.get('/', checkLoginToken, index);
+orderRoutes.get('/:id', checkLoginToken, authorizationLevel, ordersByUser);
+orderRoutes.post('/:id/product', checkLoginToken, authorizationLevel, create, addProduct);
 //orderRoutes.post('/authenticate', authenticate);
 export default orderRoutes;

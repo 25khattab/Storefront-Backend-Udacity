@@ -71,8 +71,8 @@ const authenticate = async (req: Request, res: Response) => {
     }
 };
 const userRoutes = express.Router();
-userRoutes.get('/', index);
-userRoutes.get('/:id', checkLoginToken,authorizationLevel, show);
+userRoutes.get('/', checkLoginToken, index);
+userRoutes.get('/:id', checkLoginToken, authorizationLevel, show);
 userRoutes.post('/', create);
 userRoutes.post('/authenticate', authenticate);
 

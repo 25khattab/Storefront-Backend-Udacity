@@ -43,14 +43,13 @@ describe('User Test', () => {
             await truncDB();
         });
         it('Testing index (get /users)', async (): Promise<void> => {
-            const result = await req.get('/users');
+            await createTestUser();
+            const token: string = await loginTestUser();
+            const result = await req.get('/users').set({ Authorization: 'Bearer ' + token });
             expect(result.status).toBe(200);
         });
         it('Testing create (post /users)', async (): Promise<void> => {
-            await createTestUser();
-            const result = await req
-                .post('/users')
-                .send(testUser);
+            const result = await req.post('/users').send(testUser);
             expect(result.body.user.email).toEqual(testUser.email);
             expect(result.body.user.password).toEqual(undefined);
             expect(result.statusCode).toBe(200);
@@ -72,9 +71,7 @@ describe('User Test', () => {
         });
         it('Testing show  (get /users/2) for unauthorized user', async (): Promise<void> => {
             const token = await loginTestUser();
-            const result = await req
-                .get('/users/2')
-                .set({ Authorization: 'Bearer ' + token });
+            const result = await req.get('/users/2').set({ Authorization: 'Bearer ' + token });
             expect(result.body.errMsg).toEqual('User id does not match!');
         });
     });

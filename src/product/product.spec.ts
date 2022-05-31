@@ -36,11 +36,13 @@ describe('Product Test', () => {
             await truncDB();
         });
         it('Testing index (get /products)', async (): Promise<void> => {
-            const result = await req.get('/products');
+            await createTestUser();
+            const token: string = await loginTestUser();
+            const result = await req.get('/products').set({ Authorization: 'Bearer ' + token });
             expect(result.status).toBe(200);
         });
         it('Testing create (post /products)', async (): Promise<void> => {
-            await createTestUser();
+
             const token: string = await loginTestUser();
             const result = await req
                 .post('/products')
@@ -49,7 +51,8 @@ describe('Product Test', () => {
             expect(result.body.product.name).toEqual(testProduct.name);
         });
         it('Testing show (get /products/1)', async () => {
-            const result = await req.get('/products/1');
+            const token: string = await loginTestUser();
+            const result = await req.get('/products/1').set({ Authorization: 'Bearer ' + token });
             expect(result.body.name).toEqual(testProduct.name);
         });
         it('Testing create (post /Products) for duplicated data', async (): Promise<void> => {
