@@ -8,12 +8,12 @@ To install devDependencies & dependencies
     POSTGRES_HOST=127.0.0.1
     POSTGRES_DB=store
     POSTGRES_TEST_DB=store_test
-    POSTGRES_USER=omar
-    POSTGRES_PASSWORD=root
+    POSTGRES_USER=yourUsername
+    POSTGRES_PASSWORD=yourPassword
     ENV=dev
-    BCRYPT_PASSWORD=this_is_fun_123
+    BCRYPT_PASSWORD=change_Here_To_What_You_Want
     SALT_ROUNDS=10
-    TOKEN_SECRET=apexIsHere
+    TOKEN_SECRET=change_Here_To_What_You_Want
 
 ## Database and Migrations
 the Database used in the project was Postgres database
@@ -25,7 +25,6 @@ the Database used in the project was Postgres database
 
 ```
 npm i db-migrate db-migrate-pg
-
 ```
 ### run this command to login to default postgres user 
 
@@ -41,13 +40,13 @@ psql postgres
 
 ```
 create Role yourUsername with password 'yourPassword' SUPERUSER LOGIN CREATEDB;
-
 ```
 ### Default Port
 Default port is 5432.
 
 
-now your database is ready 
+
+### Finally 
 
 Remember to change the .env file to your own settings
 
