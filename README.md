@@ -20,7 +20,7 @@ the Database used in the project was Postgres database
 ### to install database packages by yourself 
 
 ```
- npm i pg
+npm i pg
 ```
 
 ```
