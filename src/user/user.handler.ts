@@ -42,7 +42,7 @@ const create = async (req: Request, res: Response) => {
         const newUser = await store.create(user);
         if (newUser != null) {
             const token = jwt.sign(
-                { id: user?.id, firstName: user?.firstName },
+                { id: newUser?.id, firstName: newUser?.firstName },
                 process.env.TOKEN_SECRET as string
             );
             newUser.password = undefined;
